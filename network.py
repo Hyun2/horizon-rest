@@ -46,7 +46,7 @@ class SecurityGroups(generic.View):
 
         return {'items': [sg.to_dict() for sg in security_groups]}
 
-    # cumstom for bls
+    # custom for bls
     @rest_utils.ajax()
     def post(self, request):
         data = json.loads(request.body)
@@ -139,7 +139,7 @@ class FloatingIPPortForwadings(generic.View):
     url_regex = r'network/floatingippf/$'
     
 
-### cumstom for bls
+### custom for bls
 @urls.register
 class SecurityGroup(generic.View):
     url_regex = r'network/securitygroup/(?P<sg_id>[^/]+)/$'
@@ -148,3 +148,14 @@ class SecurityGroup(generic.View):
     def get(self, request, sg_id):
         print(sg_id)
         return api.neutron.security_group_get(request, sg_id)
+
+
+@urls.register
+class SecurityGroupRule(generic.View):
+    url_regex = r'network/securitygroup/(?P<sg_id>[^/]+)/add_rule/$'
+
+    @rest_utils.ajax()
+    def post(self, request, sg_id):
+        data = json.loads(request.body)
+        data['ethertype'] = 'IPv4'
+        return api.neutron.security_group_rule_create(request, parent_group_id=sg_id, **data)
