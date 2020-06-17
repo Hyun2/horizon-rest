@@ -27,7 +27,6 @@ urlpatterns = [
 # @register below, and the import the endpoint module in the
 # rest_api/__init__.py module
 
-
 def register(view):
     """Register API views to respond to a regex pattern.
 

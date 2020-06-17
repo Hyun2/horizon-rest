@@ -457,6 +457,5 @@ class VolumeSnapshot(generic.View):
 
     @rest_utils.ajax()
     def delete(self, request, volume_snapshot_id):
-        print('called')
-        print(volume_snapshot_id)
+        # print(volume_snapshot_id)
         return api.cinder.volume_snapshot_delete(request, volume_snapshot_id)

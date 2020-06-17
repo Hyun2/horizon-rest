@@ -21,6 +21,8 @@ from openstack_dashboard import api
 from openstack_dashboard.api.rest import urls
 from openstack_dashboard.api.rest import utils as rest_utils
 import json
+import bls_pf
+from django.http import HttpResponse
 
 
 @urls.register
@@ -132,30 +134,76 @@ class FloatingIPPools(generic.View):
         result = api.neutron.floating_ip_pools_list(request)
         return {'items': [p.to_dict() for p in result]}
 
+def get_auth_params_from_request(request):
+    return (request.user.token.id)
+    
 
 @urls.register
 class FloatingIPPortForwadings(generic.View):
     """API for floating IP portForwardings."""
-    url_regex = r'network/floatingippf/$'
+    url_regex = r'network/port_forwarding/(?P<floating_ip_id>[^/]+)/$'
+    
+    pf = bls_pf.BlsPortForwarding()
+    
+    #@rest_utils.ajax()
+    def get(self, request,floating_ip_id):
+        return HttpResponse(json.loads(request))
+        #return self.pf.list(get_auth_params_from_request(request),floating_ip_id)
     
 
-### custom for bls
+##################
+# cumstom for bls
+##################
 @urls.register
 class SecurityGroup(generic.View):
     url_regex = r'network/securitygroup/(?P<sg_id>[^/]+)/$'
 
     @rest_utils.ajax()
     def get(self, request, sg_id):
-        print(sg_id)
+        # print(sg_id)
         return api.neutron.security_group_get(request, sg_id)
+
+    @rest_utils.ajax()
+    def delete(self, request, sg_id):
+        # print(sg_id)
+        return api.neutron.security_group_delete(request, sg_id)
 
 
 @urls.register
-class SecurityGroupRule(generic.View):
+class SecurityGroupRules(generic.View):
+    url_regex = r'network/securitygroup/(?P<sg_id>[^/]+)/rules/$'
+
+    @rest_utils.ajax()
+    def get(self, request, sg_id):
+        # print(sg_id)
+        return api.neutron.security_group_get(request, sg_id)['rules']
+
+
+@urls.register
+class AddSecurityGroupRule(generic.View):
     url_regex = r'network/securitygroup/(?P<sg_id>[^/]+)/add_rule/$'
 
     @rest_utils.ajax()
     def post(self, request, sg_id):
         data = json.loads(request.body)
+        # ethertype: IPv4
         data['ethertype'] = 'IPv4'
         return api.neutron.security_group_rule_create(request, parent_group_id=sg_id, **data)
+
+
+@urls.register
+class DeleteSecurityGroupRule(generic.View):
+    url_regex = r'network/securitygroup-rule/(?P<sgr_id>[^/]+)/$'
+
+    @rest_utils.ajax()
+    def delete(self, request, sgr_id):
+        return api.neutron.security_group_rule_delete(request, sgr_id)
+
+
+@urls.register
+class ReleaseFloatingIP(generic.View):
+    url_regex = r'network/floatingip/(?P<floating_ip_id>[^/]+)/$'
+
+    @rest_utils.ajax()
+    def delete(self, request, floating_ip_id):
+        return api.neutron.tenant_floating_ip_release(request, floating_ip_id)
