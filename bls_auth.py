@@ -133,7 +133,7 @@ def is_admin(request):
         print('POST request')
         return JsonResponse("POST response", safe=False)
     else:
-        if request.user.username == 'admin':
+        if request.user.is_superuser:
             print("isadmin: True")
             return JsonResponse(True, safe=False)
         else:

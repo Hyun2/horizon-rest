@@ -134,10 +134,6 @@ class FloatingIPPools(generic.View):
         result = api.neutron.floating_ip_pools_list(request)
         return {'items': [p.to_dict() for p in result]}
 
-def get_auth_params_from_request(request):
-    return (request.user.token.id)
-    
-
 @urls.register
 class FloatingIPPortForwadings(generic.View):
     """API for floating IP portForwardings."""
@@ -148,6 +144,19 @@ class FloatingIPPortForwadings(generic.View):
     @rest_utils.ajax()
     def get(self, request,floating_ip_id):
         return self.pf.list(request.user.token.id,floating_ip_id)
+    
+    @rest_utils.ajax()
+    def create(self,request,floating_ip_id):
+        return self.pf.create(request.user.token.id,floating_ip_id,json.loads(request.body))
+    
+    @rest_utils.ajax()
+    def update(self,request,floating_ip_id):
+        return self.pf.update(request.user.token.id,floating_ip_id,json.loads(request.body))
+    
+    @rest_utils.ajax()
+    def delete(self,request,floating_ip_id):
+        return self.pf.delete(request.user.token.id,floating_ip_id)
+
     
 
 ##################

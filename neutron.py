@@ -324,3 +324,23 @@ class AvailabilityZones(generic.View):
     def get(self, request):
         return api.neutron.list_availability_zones(self.request, 'network',
                                                    'available')
+
+
+@urls.register
+class Routers(generic.View):
+    url_regex = r'neutron/routers/$'
+
+    @rest_utils.ajax()
+    def post(self, request):
+        # print(request.DATA)
+        return api.neutron.router_create(request, **request.DATA)
+
+
+@urls.register
+class RouterAddInterface(generic.View):
+    url_regex = r'neutron/routers/add-interface/$'
+
+    @rest_utils.ajax()
+    def post(self, request):
+        # print(request.DATA)
+        return api.neutron.router_add_interface(request, **request.DATA)
