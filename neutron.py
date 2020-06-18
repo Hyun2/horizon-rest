@@ -344,3 +344,18 @@ class RouterAddInterface(generic.View):
     def post(self, request):
         # print(request.DATA)
         return api.neutron.router_add_interface(request, **request.DATA)
+
+
+@urls.register
+class SpecificProjectNetworks(generic.View):
+    url_regex = r'neutron/networks/(?P<project_id>[^/]+)/$'
+
+    @rest_utils.ajax()
+    def get(self, request, project_id):
+        # print(request.DATA)
+        result = api.neutron.network_list_for_tenant(
+            request,
+            project_id,
+            include_external=True,
+            include_pre_auto_allocate=True)
+        return {'items': [n.to_dict() for n in result]}
