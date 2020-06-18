@@ -145,10 +145,9 @@ class FloatingIPPortForwadings(generic.View):
     
     pf = bls_pf.BlsPortForwarding()
     
-    #@rest_utils.ajax()
+    @rest_utils.ajax()
     def get(self, request,floating_ip_id):
-        return HttpResponse(json.loads(request))
-        #return self.pf.list(get_auth_params_from_request(request),floating_ip_id)
+        return self.pf.list(request.user.token.id,floating_ip_id)
     
 
 ##################

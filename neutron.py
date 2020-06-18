@@ -44,9 +44,8 @@ class Networks(generic.View):
         # We need to revisit the logic if we use this method for
         # other operations other than server create.
         result = api.neutron.network_list_for_tenant(
-            request, tenant_id,
-            include_pre_auto_allocate=True)
-        return{'items': [n.to_dict() for n in result]}
+            request, tenant_id, include_pre_auto_allocate=True)
+        return {'items': [n.to_dict() for n in result]}
 
     @rest_utils.ajax(data_required=True)
     def post(self, request):
@@ -70,9 +69,7 @@ class Networks(generic.View):
          """
         new_network = api.neutron.network_create(request, **request.DATA)
         return rest_utils.CreatedResponse(
-            '/api/neutron/networks/%s' % new_network.id,
-            new_network.to_dict()
-        )
+            '/api/neutron/networks/%s' % new_network.id, new_network.to_dict())
 
 
 @urls.register
@@ -92,7 +89,7 @@ class Subnets(generic.View):
 
         """
         result = api.neutron.subnet_list(request, **request.GET.dict())
-        return{'items': [n.to_dict() for n in result]}
+        return {'items': [n.to_dict() for n in result]}
 
     @rest_utils.ajax(data_required=True)
     def post(self, request):
@@ -117,9 +114,7 @@ class Subnets(generic.View):
         """
         new_subnet = api.neutron.subnet_create(request, **request.DATA)
         return rest_utils.CreatedResponse(
-            '/api/neutron/subnets/%s' % new_subnet.id,
-            new_subnet.to_dict()
-        )
+            '/api/neutron/subnets/%s' % new_subnet.id, new_subnet.to_dict())
 
 
 @urls.register
@@ -139,8 +134,8 @@ class Ports(generic.View):
         """
         # see
         # https://github.com/openstack/neutron/blob/master/neutron/api/v2/attributes.py
-        result = api.neutron.port_list_with_trunk_types(request,
-                                                        **request.GET.dict())
+        result = api.neutron.port_list_with_trunk_types(
+            request, **request.GET.dict())
         return {'items': [n.to_dict() for n in result]}
 
 
@@ -165,8 +160,8 @@ class Trunk(generic.View):
         old_trunk = request.DATA[0]
         new_trunk = request.DATA[1]
 
-        return api.neutron.trunk_update(
-            request, trunk_id, old_trunk, new_trunk)
+        return api.neutron.trunk_update(request, trunk_id, old_trunk,
+                                        new_trunk)
 
 
 @urls.register
@@ -188,9 +183,7 @@ class Trunks(generic.View):
     def post(self, request):
         new_trunk = api.neutron.trunk_create(request, **request.DATA)
         return rest_utils.CreatedResponse(
-            '/api/neutron/trunks/%s' % new_trunk.id,
-            new_trunk.to_dict()
-        )
+            '/api/neutron/trunks/%s' % new_trunk.id, new_trunk.to_dict())
 
 
 @urls.register
@@ -235,16 +228,18 @@ class DefaultQuotaSets(generic.View):
     @rest_utils.ajax()
     def get(self, request):
         if api.base.is_service_enabled(request, 'network'):
-            quota_set = api.neutron.tenant_quota_get(
-                request, request.user.tenant_id)
+            quota_set = api.neutron.tenant_quota_get(request,
+                                                     request.user.tenant_id)
 
             result = [{
-                'display_name': quotas.QUOTA_NAMES.get(
-                    quota.name,
-                    quota.name.replace('_', ' ').title()
-                ) + '',
-                'name': quota.name,
-                'limit': quota.limit
+                'display_name':
+                quotas.QUOTA_NAMES.get(quota.name,
+                                       quota.name.replace('_', ' ').title()) +
+                '',
+                'name':
+                quota.name,
+                'limit':
+                quota.limit
             } for quota in quota_set]
 
             return {'items': result}
@@ -272,12 +267,12 @@ class QuotasSets(generic.View):
         if api.base.is_service_enabled(request, 'network') and \
                 api.neutron.is_extension_supported(request, 'quotas'):
             neutron_data = {
-                key: request.DATA[key] for key in quotas.NEUTRON_QUOTA_FIELDS
+                key: request.DATA[key]
+                for key in quotas.NEUTRON_QUOTA_FIELDS
                 if key not in disabled_quotas
             }
 
-            api.neutron.tenant_quota_update(request,
-                                            project_id,
+            api.neutron.tenant_quota_update(request, project_id,
                                             **neutron_data)
         else:
             message = _('Service Neutron is disabled or quotas extension not '
@@ -316,3 +311,16 @@ class QoSPolicy(generic.View):
         """Get a specific policy"""
         policy = api.neutron.policy_get(request, policy_id)
         return policy.to_dict()
+
+
+#################
+# custom for bls
+#################
+@urls.register
+class AvailabilityZones(generic.View):
+    url_regex = r'neutron/availability-zones/$'
+
+    @rest_utils.ajax()
+    def get(self, request):
+        return api.neutron.list_availability_zones(self.request, 'network',
+                                                   'available')
