@@ -147,7 +147,7 @@ class FloatingIPPortForwadings(generic.View):
     
     @rest_utils.ajax()
     def post(self,request,floating_ip_id):
-        return self.pf.create(request.user.token.id,floating_ip_id,json.loads(request.body))
+        return self.pf.create(request.user.token.id,floating_ip_id,request.body)
     
     @rest_utils.ajax()
     def put(self,request,floating_ip_id):

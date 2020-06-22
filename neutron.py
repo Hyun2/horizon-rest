@@ -359,3 +359,30 @@ class SpecificProjectNetworks(generic.View):
             include_external=True,
             include_pre_auto_allocate=True)
         return {'items': [n.to_dict() for n in result]}
+
+
+@urls.register
+class Router(generic.View):
+    url_regex = r'neutron/routers/(?P<router_id>[^/]+)/$'
+
+    @rest_utils.ajax()
+    def get(self, request, router_id):
+        return api.neutron.router_get(request, router_id)
+
+
+@urls.register
+class Network(generic.View):
+    url_regex = r'neutron/networks/(?P<network_id>[^/]+)/$'
+
+    @rest_utils.ajax()
+    def get(self, request, network_id):
+        return api.neutron.network_get(request, network_id)
+
+
+@urls.register
+class Subnet(generic.View):
+    url_regex = r'neutron/subnets/(?P<subnet_id>[^/]+)/$'
+
+    @rest_utils.ajax()
+    def get(self, request, subnet_id):
+        return api.neutron.subnet_get(request, subnet_id)
