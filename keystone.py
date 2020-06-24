@@ -59,13 +59,12 @@ class Users(generic.View):
         if not filters:
             filters = None
 
-        result = api.keystone.user_list(
-            request,
-            project=request.GET.get('project_id'),
-            domain=request.GET.get('domain_id', domain_context),
-            group=request.GET.get('group_id'),
-            filters=filters
-        )
+        result = api.keystone.user_list(request,
+                                        project=request.GET.get('project_id'),
+                                        domain=request.GET.get(
+                                            'domain_id', domain_context),
+                                        group=request.GET.get('group_id'),
+                                        filters=filters)
         return {'items': [u.to_dict() for u in result]}
 
     @rest_utils.ajax(data_required=True)
@@ -90,13 +89,10 @@ class Users(generic.View):
             project=request.DATA.get('project') or None,
             enabled=request.DATA.get('enabled', True),
             description=request.DATA.get('description') or None,
-            domain=domain.id
-        )
+            domain=domain.id)
 
         return rest_utils.CreatedResponse(
-            '/api/keystone/users/%s' % new_user.id,
-            new_user.to_dict()
-        )
+            '/api/keystone/users/%s' % new_user.id, new_user.to_dict())
 
     @rest_utils.ajax(data_required=True)
     def delete(self, request):
@@ -158,8 +154,8 @@ class User(generic.View):
         if 'password' in keys:
             if settings.ENFORCE_PASSWORD_CHECK:
                 admin_password = request.DATA['admin_password']
-                if not api.keystone.user_verify_admin_password(request,
-                                                               admin_password):
+                if not api.keystone.user_verify_admin_password(
+                        request, admin_password):
                     raise rest_utils.AjaxError(400, 'ADMIN_PASSWORD_INCORRECT')
             password = request.DATA['password']
             api.keystone.user_update_password(request, user, password)
@@ -215,9 +211,7 @@ class Roles(generic.View):
         """
         new_role = api.keystone.role_create(request, request.DATA['name'])
         return rest_utils.CreatedResponse(
-            '/api/keystone/roles/%s' % new_role.id,
-            new_role.to_dict()
-        )
+            '/api/keystone/roles/%s' % new_role.id, new_role.to_dict())
 
     @rest_utils.ajax(data_required=True)
     def delete(self, request):
@@ -315,9 +309,7 @@ class Domains(generic.View):
             enabled=request.DATA.get('enabled', True),
         )
         return rest_utils.CreatedResponse(
-            '/api/keystone/domains/%s' % new_domain.id,
-            new_domain.to_dict()
-        )
+            '/api/keystone/domains/%s' % new_domain.id, new_domain.to_dict())
 
     @rest_utils.ajax(data_required=True)
     def delete(self, request):
@@ -368,20 +360,22 @@ class Domain(generic.View):
 
         This method returns HTTP 204 (no content) on success.
         """
-        api.keystone.domain_update(
-            request,
-            id,
-            description=request.DATA.get('description'),
-            enabled=request.DATA.get('enabled'),
-            name=request.DATA.get('name')
-        )
+        api.keystone.domain_update(request,
+                                   id,
+                                   description=request.DATA.get('description'),
+                                   enabled=request.DATA.get('enabled'),
+                                   name=request.DATA.get('name'))
 
 
 def _tenant_kwargs_from_DATA(data, enabled=True):
     # tenant_create takes arbitrary keyword arguments with only a small
     # restriction (the default args)
-    kwargs = {'name': None, 'description': None, 'enabled': enabled,
-              'domain': data.pop('domain_id', None)}
+    kwargs = {
+        'name': None,
+        'description': None,
+        'enabled': enabled,
+        'domain': data.pop('domain_id', None)
+    }
     kwargs.update(data)
     return kwargs
 
@@ -395,8 +389,7 @@ class Projects(generic.View):
     interchangeably.
     """
     url_regex = r'keystone/projects/$'
-    client_keywords = {'paginate', 'marker', 'domain_id',
-                       'user_id', 'admin'}
+    client_keywords = {'paginate', 'marker', 'domain_id', 'user_id', 'admin'}
 
     @rest_utils.ajax()
     def get(self, request):
@@ -433,8 +426,7 @@ class Projects(generic.View):
             domain=request.GET.get('domain_id'),
             user=request.GET.get('user_id'),
             admin=admin,
-            filters=filters
-        )
+            filters=filters)
         # return (list of results, has_more_data)
         return dict(has_more=has_more, items=[d.to_dict() for d in result])
 
@@ -454,14 +446,10 @@ class Projects(generic.View):
         kwargs = _tenant_kwargs_from_DATA(request.DATA)
         if not kwargs['name']:
             raise rest_utils.AjaxError(400, '"name" is required')
-        new_project = api.keystone.tenant_create(
-            request,
-            **kwargs
-        )
+        new_project = api.keystone.tenant_create(request, **kwargs)
         return rest_utils.CreatedResponse(
             '/api/keystone/projects/%s' % new_project.id,
-            new_project.to_dict()
-        )
+            new_project.to_dict())
 
     @rest_utils.ajax(data_required=True)
     def delete(self, request):
@@ -528,12 +516,8 @@ class ProjectRole(generic.View):
 
         This method returns HTTP 204 (no content) on success.
         """
-        api.keystone.add_tenant_user_role(
-            request,
-            project_id,
-            user_id,
-            role_id
-        )
+        api.keystone.add_tenant_user_role(request, project_id, user_id,
+                                          role_id)
 
 
 @urls.register
@@ -558,19 +542,9 @@ class UserSession(generic.View):
     """API for a single keystone user."""
     url_regex = r'keystone/user-session/$'
     allowed_fields = {
-        'available_services_regions',
-        'domain_id',
-        'domain_name',
-        'enabled',
-        'id',
-        'is_superuser',
-        'project_id',
-        'project_name',
-        'roles',
-        'services_region',
-        'user_domain_id',
-        'user_domain_name',
-        'username'
+        'available_services_regions', 'domain_id', 'domain_name', 'enabled',
+        'id', 'is_superuser', 'project_id', 'project_name', 'roles',
+        'services_region', 'user_domain_id', 'user_domain_name', 'username'
     }
 
     @rest_utils.ajax()
@@ -594,8 +568,7 @@ class Services(generic.View):
         services = []
         for i, service in enumerate(request.user.service_catalog):
             services.append(
-                dict(api.keystone.Service(service, region).to_dict(), id=i)
-            )
+                dict(api.keystone.Service(service, region).to_dict(), id=i))
 
         return {'items': services}
 
@@ -612,8 +585,10 @@ class Groups(generic.View):
         The listing result is an object with property "items".
         """
         domain_context = request.session.get('domain_context')
-        items = [d.to_dict() for d in api.keystone.group_list(
-            request, domain=request.GET.get('domain_id', domain_context))]
+        items = [
+            d.to_dict() for d in api.keystone.group_list(
+                request, domain=request.GET.get('domain_id', domain_context))
+        ]
 
         return {'items': items}
 
@@ -628,15 +603,11 @@ class Groups(generic.View):
         This method returns the new group object on success.
         """
         new_group = api.keystone.group_create(
-            request,
-            identity_utils.get_domain_id_for_operation(request),
-            request.DATA['name'],
-            request.DATA.get("description", None))
+            request, identity_utils.get_domain_id_for_operation(request),
+            request.DATA['name'], request.DATA.get("description", None))
 
         return rest_utils.CreatedResponse(
-            '/api/keystone/groups/%s' % new_group.id,
-            new_group.to_dict()
-        )
+            '/api/keystone/groups/%s' % new_group.id, new_group.to_dict())
 
     @rest_utils.ajax(data_required=True)
     def delete(self, request):
@@ -678,6 +649,18 @@ class Group(generic.View):
 
         This method returns HTTP 204 (no content) on success.
         """
-        api.keystone.group_update(request, id,
-                                  request.DATA['name'],
+        api.keystone.group_update(request, id, request.DATA['name'],
                                   request.DATA.get("description", None))
+
+
+@urls.register
+class UserProjects(generic.View):
+    url_regex = r'keystone/user-projects/$'
+
+    @rest_utils.ajax()
+    def get(self, request):
+        # from openstack_auth.utils import get_project_list  # noqa: F403,H303
+        print(request.user.authorized_tenants)
+
+        return dict(
+            items=[d.to_dict() for d in request.user.authorized_tenants])

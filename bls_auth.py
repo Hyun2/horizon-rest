@@ -159,3 +159,10 @@ def get_token_info(request):
             return JsonResponse(data, safe=False)
         else:
             return JsonResponse("not logged in", safe=False)
+
+
+def is_logged_in(request):
+    if request.user.is_authenticated:
+        return JsonResponse(True, safe=False)
+    else:
+        return JsonResponse(False, safe=False)

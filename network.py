@@ -76,7 +76,7 @@ class FloatingIP(generic.View):
         if 'dns_name' in request.DATA:
             params['dns_name'] = request.DATA['dns_name']
         result = api.neutron.tenant_floating_ip_allocate(request, pool,
-                                                         None, **params)
+                                                         request.DATA.get('tenant_id', None), **params)
         return result.to_dict()
 
     @rest_utils.ajax(data_required=True)
@@ -147,7 +147,9 @@ class FloatingIPPortForwadings(generic.View):
     
     @rest_utils.ajax()
     def post(self,request,floating_ip_id):
-        return self.pf.create(request.user.token.id,floating_ip_id,request.body)
+        print(json.loads(request.body))
+        print(request.body)
+        return self.pf.create(request.user.token.id,floating_ip_id,json.loads(request.body))
     
     @rest_utils.ajax()
     def put(self,request,floating_ip_id):

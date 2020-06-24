@@ -386,3 +386,12 @@ class Subnet(generic.View):
     @rest_utils.ajax()
     def get(self, request, subnet_id):
         return api.neutron.subnet_get(request, subnet_id)
+
+
+@urls.register
+class RouterPorts(generic.View):
+    url_regex = r'neutron/routers/(?P<router_id>[^/]+)/ports/$'
+
+    @rest_utils.ajax()
+    def get(self, request, router_id):
+        return api.neutron.port_list(self.request, device_id=router_id)

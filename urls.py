@@ -20,12 +20,14 @@ urlpatterns = [
     url(r'bls_auth/login/$', bls_auth.login),
     url(r'bls_auth/is-admin/$', bls_auth.is_admin),
     url(r'bls_auth/token-info/$', bls_auth.get_token_info),
-    url(r'bls_auth/switch/$', bls_auth.switch)
+    url(r'bls_auth/switch/$', bls_auth.switch),
+    url(r'bls_auth/is-logged-in/$', bls_auth.is_logged_in),
 ]
 
 # to register the URLs for your API endpoints, decorate the view class with
 # @register below, and the import the endpoint module in the
 # rest_api/__init__.py module
+
 
 def register(view):
     """Register API views to respond to a regex pattern.
