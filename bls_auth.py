@@ -63,6 +63,7 @@ def login(request):
                 messages.warning(request, msg)
         else:
             return JsonResponse("Password is wrong. Ensure your password.",
+                                status=400,
                                 safe=False)
 
         res = dict(
@@ -72,12 +73,40 @@ def login(request):
             if project['name'] == 'admin':
                 break
         switch(request, project['id'])
+        # print(request.session.session_key)
+        return JsonResponse(
+            {
+                "sid": request.session.session_key,
+                "project_id": request.user.tenant_id,
+                "token_expires": request.user.token.expires
+            },
+            safe=False)
 
-        print(request.session.session_key)
-        return JsonResponse(request.session.session_key, safe=False)
-    else:
-        print('GET request')
-        return JsonResponse("GET response", safe=False)
+
+def is_admin(request):
+    if request.method == "GET":
+        if request.user.username == 'admin':
+            print("isadmin: True")
+            return JsonResponse(True, safe=False)
+        else:
+            print("isadmin: False")
+            return JsonResponse(False, safe=False)
+
+
+@login_required
+def get_token_info(request):
+    if request.method == "GET":
+        if request.user.is_authenticated:
+            data = {
+                "username": request.user.username,
+                "token_expires": request.user.token.expires,
+                "token_user": request.user.token.user,
+                "token_project": request.user.token.project
+            }
+
+            return JsonResponse(data, safe=False)
+        else:
+            return JsonResponse("not logged in", status=401, safe=False)
 
 
 @login_required
@@ -125,44 +154,21 @@ def switch(request, project_id=None):
         return JsonResponse("success", safe=False)
 
     else:
-        return JsonResponse("failed", safe=False)
-
-
-def is_admin(request):
-    if request.method == "POST":
-        print('POST request')
-        return JsonResponse("POST response", safe=False)
-    else:
-        if request.user.is_superuser:
-            print("isadmin: True")
-            return JsonResponse(True, safe=False)
-        else:
-            print("isadmin: False")
-            return JsonResponse(False, safe=False)
-
-
-@login_required
-def get_token_info(request):
-    if request.method == "POST":
-        print('POST request')
-        return JsonResponse("POST response", safe=False)
-    else:
-        if request.user.is_authenticated:
-            # print(request.user)
-            data = {
-                "username": request.user.username,
-                "token_expires": request.user.token.expires,
-                "token_user": request.user.token.user,
-                "token_project": request.user.token.project
-            }
-
-            return JsonResponse(data, safe=False)
-        else:
-            return JsonResponse("not logged in", safe=False)
+        return JsonResponse("failed", status=400, safe=False)
 
 
 def is_logged_in(request):
     if request.user.is_authenticated:
         return JsonResponse(True, safe=False)
     else:
-        return JsonResponse(False, safe=False)
+        return JsonResponse(False, status=401, safe=False)
+
+
+@login_required
+def tenant_info(request):
+    return JsonResponse(
+        {
+            "tenant_id": request.user.tenant_id,
+            "tenant_name": request.user.tenant_name
+        },
+        safe=False)

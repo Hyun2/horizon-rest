@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'bls_auth/token-info/$', bls_auth.get_token_info),
     url(r'bls_auth/switch/$', bls_auth.switch),
     url(r'bls_auth/is-logged-in/$', bls_auth.is_logged_in),
+    url(r'bls_auth/tenant-info/$', bls_auth.tenant_info),
 ]
 
 # to register the URLs for your API endpoints, decorate the view class with
