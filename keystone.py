@@ -103,6 +103,7 @@ class Users(generic.View):
 
         This method returns HTTP 204 (no content) on success.
         """
+        print(request.DATA)
         for user_id in request.DATA:
             if user_id != request.user.id:
                 api.keystone.user_delete(request, user_id)
@@ -519,6 +520,12 @@ class ProjectRole(generic.View):
         api.keystone.add_tenant_user_role(request, project_id, user_id,
                                           role_id)
 
+    # custom for bls
+    @rest_utils.ajax()
+    def delete(self, request, project_id, role_id, user_id):
+        api.keystone.remove_tenant_user_role(request, project_id, user_id,
+                                             role_id)
+
 
 @urls.register
 class ServiceCatalog(generic.View):
@@ -653,6 +660,9 @@ class Group(generic.View):
                                   request.DATA.get("description", None))
 
 
+#################
+# custom for bls
+#################
 @urls.register
 class UserProjects(generic.View):
     url_regex = r'keystone/user-projects/$'
@@ -660,7 +670,6 @@ class UserProjects(generic.View):
     @rest_utils.ajax()
     def get(self, request):
         # from openstack_auth.utils import get_project_list  # noqa: F403,H303
-        print(request.user.authorized_tenants)
 
         return dict(
             items=[d.to_dict() for d in request.user.authorized_tenants])

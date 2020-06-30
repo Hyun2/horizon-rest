@@ -832,8 +832,7 @@ class AttachVolume(generic.View):
 
     @rest_utils.ajax()
     def post(self, request, server_id, volume_id):
-        result = api.nova.instance_volume_attach(request, volume_id, server_id,
-                                                 None)
+        api.nova.instance_volume_attach(request, volume_id, server_id, None)
         return HttpResponse(status=204)
 
 

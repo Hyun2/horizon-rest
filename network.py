@@ -1,4 +1,3 @@
-
 # Copyright 2015, Hewlett-Packard Development Company, L.P.
 # Copyright 2016 IBM Corp.
 #
@@ -75,8 +74,8 @@ class FloatingIP(generic.View):
             params['dns_domain'] = request.DATA['dns_domain']
         if 'dns_name' in request.DATA:
             params['dns_name'] = request.DATA['dns_name']
-        result = api.neutron.tenant_floating_ip_allocate(request, pool,
-                                                         request.DATA.get('tenant_id', None), **params)
+        result = api.neutron.tenant_floating_ip_allocate(
+            request, pool, request.DATA.get('tenant_id', None), **params)
         return result.to_dict()
 
     @rest_utils.ajax(data_required=True)
@@ -116,6 +115,7 @@ class FloatingIPs(generic.View):
         result = api.neutron.tenant_floating_ip_list(request)
         return {'items': [ip.to_dict() for ip in result]}
 
+
 @urls.register
 class FloatingIPPools(generic.View):
     """API for floating IP pools."""
@@ -134,32 +134,34 @@ class FloatingIPPools(generic.View):
         result = api.neutron.floating_ip_pools_list(request)
         return {'items': [p.to_dict() for p in result]}
 
+
 @urls.register
 class FloatingIPPortForwadings(generic.View):
     """API for floating IP portForwardings."""
     url_regex = r'network/port_forwarding/(?P<floating_ip_id>[^/]+)/$'
-    
+
     pf = bls_pf.BlsPortForwarding()
-    
+
     @rest_utils.ajax()
-    def get(self, request,floating_ip_id):
-        return self.pf.list(request.user.token.id,floating_ip_id)
-    
+    def get(self, request, floating_ip_id):
+        return self.pf.list(request.user.token.id, floating_ip_id)
+
     @rest_utils.ajax()
-    def post(self,request,floating_ip_id):
+    def post(self, request, floating_ip_id):
         print(json.loads(request.body))
         print(request.body)
-        return self.pf.create(request.user.token.id,floating_ip_id,json.loads(request.body))
-    
-    @rest_utils.ajax()
-    def put(self,request,floating_ip_id):
-        return self.pf.update(request.user.token.id,floating_ip_id,json.loads(request.body))
-    
-    @rest_utils.ajax()
-    def delete(self,request,floating_ip_id):
-        return self.pf.delete(request.user.token.id,floating_ip_id)
+        return self.pf.create(request.user.token.id, floating_ip_id,
+                              json.loads(request.body))
 
-    
+    @rest_utils.ajax()
+    def put(self, request, floating_ip_id):
+        return self.pf.update(request.user.token.id, floating_ip_id,
+                              json.loads(request.body))
+
+    @rest_utils.ajax()
+    def delete(self, request, floating_ip_id):
+        return self.pf.delete(request.user.token.id, floating_ip_id)
+
 
 ##################
 # cumstom for bls
@@ -198,7 +200,9 @@ class AddSecurityGroupRule(generic.View):
         data = json.loads(request.body)
         # ethertype: IPv4
         data['ethertype'] = 'IPv4'
-        return api.neutron.security_group_rule_create(request, parent_group_id=sg_id, **data)
+        return api.neutron.security_group_rule_create(request,
+                                                      parent_group_id=sg_id,
+                                                      **data)
 
 
 @urls.register
