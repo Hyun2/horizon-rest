@@ -103,7 +103,6 @@ class Users(generic.View):
 
         This method returns HTTP 204 (no content) on success.
         """
-        print(request.DATA)
         for user_id in request.DATA:
             if user_id != request.user.id:
                 api.keystone.user_delete(request, user_id)
