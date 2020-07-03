@@ -151,6 +151,12 @@ def switch(request, project_id=None):
         messages.success(request, message)
         # utils.set_response_cookie(response, 'recent_project',
         #                           request.user.project_id)
+
+        print({
+            "tenant_id": request.user.tenant_id,
+            "tenant_name": request.user.tenant_name,
+            "username": request.user.username
+        })
         return JsonResponse("success", safe=False)
 
     else:

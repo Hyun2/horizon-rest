@@ -22,6 +22,7 @@ from openstack_dashboard.api.rest import utils as rest_utils
 import json
 import bls_pf
 from django.http import HttpResponse
+from django.http import JsonResponse
 
 
 @urls.register
@@ -161,6 +162,41 @@ class FloatingIPPortForwadings(generic.View):
     @rest_utils.ajax()
     def delete(self, request, floating_ip_id):
         return self.pf.delete(request.user.token.id, floating_ip_id)
+
+
+@urls.register
+class FloatingIPPortForwadings2(generic.View):
+    """API for floating IP portForwardings."""
+    url_regex = r'network/port_forwarding2/(?P<floating_ip_id>[^/]+)/$'
+
+    pf = bls_pf.BlsPortForwarding()
+
+    @rest_utils.ajax()
+    def get(self, request, floating_ip_id):
+        return JsonResponse(self.pf.list(request.user.token.id,
+                                         floating_ip_id).json(),
+                            safe=False)
+
+    @rest_utils.ajax()
+    def post(self, request, floating_ip_id):
+        print(json.loads(request.body))
+        print(request.body)
+        return JsonResponse(self.pf.create(request.user.token.id,
+                                           floating_ip_id,
+                                           json.loads(request.body)).json(),
+                            safe=False)
+
+    @rest_utils.ajax()
+    def put(self, request, floating_ip_id):
+        return self.pf.update(request.user.token.id, floating_ip_id,
+                              json.loads(request.body))
+
+    @rest_utils.ajax()
+    def delete(self, request, floating_ip_id):
+        print(request.DATA['port_forwarding_id'])
+        # return {}
+        return self.pf.delete(request.user.token.id, floating_ip_id,
+                              request.DATA['port_forwarding_id'])
 
 
 ##################
