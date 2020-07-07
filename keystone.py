@@ -23,6 +23,8 @@ from openstack_dashboard import api
 from openstack_dashboard.api.rest import urls
 from openstack_dashboard.api.rest import utils as rest_utils
 from openstack_dashboard.utils import identity as identity_utils
+import sys
+from django.http import JsonResponse
 
 
 @urls.register
@@ -672,3 +674,184 @@ class UserProjects(generic.View):
 
         return dict(
             items=[d.to_dict() for d in request.user.authorized_tenants])
+
+
+@urls.register
+class BLSProject(generic.View):
+    url_regex = r'keystone/bls-projects/$'
+
+    @rest_utils.ajax()
+    def post(self, request):
+        new_router, new_fip, new_project, new_network, new_subnet, new_user = (
+            None, ) * 6
+        try:
+            company_id = request.DATA.get('company_id', None)
+            create_user = request.DATA.get('create_user', None)
+            user_data = request.DATA.get('user_data', None)
+            subnet_cidr = request.DATA.get('subnet_cidr', None)
+            horizon_uid = request.DATA.get('horizon_uid', None)
+            '''
+            request.DATA = {
+                create_user: {{ True || False }}
+                company_id: {{ company_id }},
+                horizoon_uid: {{ horizon_uid }},
+                user_data: {
+                    name: {{ user_id }},
+                    password: '',
+                },
+                subnet_cidr: '',
+            }
+            '''
+            domain = api.keystone.get_default_domain(request)
+            result, has_more = api.keystone.tenant_list(request,
+                                                        user=horizon_uid)
+            user_projects = [d.to_dict() for d in result]
+            cnt_project = len(user_projects)
+
+            # company/enable
+            if create_user:
+                new_project = api.keystone.tenant_create(
+                    request,
+                    name="default-{}".format(company_id),
+                    description='')
+                new_user = api.keystone.user_create(request,
+                                                    project=new_project.id,
+                                                    enabled=True,
+                                                    domain=domain.id,
+                                                    **user_data)
+
+            # create a new project
+            else:
+                new_project = api.keystone.tenant_create(request,
+                                                         name='{}-{}'.format(
+                                                             company_id,
+                                                             cnt_project),
+                                                         description='')
+
+            networks = api.neutron.network_list_for_tenant(
+                request,
+                tenant_id=new_project.id,
+                include_external=True,
+                include_pre_auto_allocate=False,
+            )
+            ext_nets = [
+                network['id'] for network in networks
+                if network['router:external']
+            ]
+
+            new_fip = api.neutron.tenant_floating_ip_allocate(
+                request, tenant_id=new_project.id, pool=ext_nets[0])
+            # new_fip = new_fip.to_dict()
+
+            new_router = api.neutron.router_create(request,
+                                                   external_gateway_info={
+                                                       "network_id":
+                                                       ext_nets[0],
+                                                   },
+                                                   tenant_id=new_project.id,
+                                                   name="ext_router",
+                                                   admin_state_up=True)
+
+            # Availability Zones
+            AZ = api.neutron.list_availability_zones(self.request, 'network',
+                                                     'available')
+            zones = [zone['name'] for zone in AZ]
+            new_network = api.neutron.network_create(
+                request,
+                shared=False,
+                tenant_id=new_project.id,
+                name='net_int',
+                admin_state_up=True,
+                availability_zone_hints=zones)
+
+            new_subnet = api.neutron.subnet_create(
+                request,
+                name="subnet_int",
+                enable_dhcp=True,
+                network_id=new_network.id,
+                tenant_id=new_project.id,
+                ip_version=4,
+                cidr=subnet_cidr,
+            )
+
+            api.neutron.router_add_interface(request,
+                                             router_id=new_router.id,
+                                             subnet_id=new_subnet.id)
+
+            if new_user:
+                user_id = new_user.id
+            else:
+                user_id = horizon_uid
+
+            roles = [r.to_dict() for r in api.keystone.role_list(request)]
+
+            for role in roles:
+                if role['name'] == 'member':
+                    member_role = role
+                elif role['name'] == 'admin':
+                    admin_role = role
+
+            api.keystone.add_tenant_user_role(request, new_project.id, user_id,
+                                              member_role['id'])
+            api.keystone.add_tenant_user_role(request, new_project.id,
+                                              request.user.keystone_user_id,
+                                              admin_role['id'])
+
+            if new_user:
+                res = {
+                    "project": new_project.to_dict(),
+                    "user": new_user.to_dict(),
+                    "router": new_router.to_dict(),
+                    "network": new_network.to_dict(),
+                    "subnet": new_subnet.to_dict(),
+                    "pf": new_fip.to_dict()
+                }
+            else:
+                res = {
+                    "project": new_project.to_dict(),
+                    "router": new_router.to_dict(),
+                    "network": new_network.to_dict(),
+                    "subnet": new_subnet.to_dict(),
+                    "pf": new_fip.to_dict()
+                }
+
+            return JsonResponse(res, safe=False)
+
+        except:
+            if new_router:
+                api.neutron.router_remove_gateway(request, new_router.id)
+                ports = api.neutron.port_list(self.request,
+                                              device_id=new_router.id)
+                ports_id = [port.id for port in ports if port['name'] == '']
+
+                for port_id in ports_id:
+                    api.neutron.router_remove_interface(
+                        request,
+                        router_id=new_router.id,
+                        subnet_id=None,
+                        port_id=port_id)
+
+                api.neutron.router_delete(request, router_id=new_router.id)
+
+            if new_subnet:
+                api.neutron.subnet_delete(request, new_subnet.id)
+
+            if new_network:
+                api.neutron.network_delete(request, new_network.id)
+
+            if new_fip:
+                api.neutron.tenant_floating_ip_release(request, new_fip.id)
+
+            if new_project:
+                api.keystone.tenant_delete(request, new_project.id)
+
+            if new_user:
+                api.keystone.user_delete(request, new_user.id)
+
+            type, value, tb = (None, ) * 3
+            type, value, tb = sys.exc_info()
+
+            if (value and value.message):
+                return JsonResponse(value.message, status=400, safe=False)
+            else:
+                return JsonResponse("error", status=400, safe=False)

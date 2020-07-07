@@ -394,4 +394,6 @@ class RouterPorts(generic.View):
 
     @rest_utils.ajax()
     def get(self, request, router_id):
-        return api.neutron.port_list(self.request, device_id=router_id)
+        # return api.neutron.port_list(self.request, device_id=router_id)
+        return api.neutron.port_list_with_trunk_types(self.request,
+                                                      device_id=router_id)
