@@ -178,3 +178,10 @@ def tenant_info(request):
             "tenant_name": request.user.tenant_name
         },
         safe=False)
+
+
+@login_required
+def user_info(request):
+    return JsonResponse({
+        "username": request.user.username,
+    }, safe=False)

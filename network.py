@@ -20,7 +20,7 @@ from openstack_dashboard import api
 from openstack_dashboard.api.rest import urls
 from openstack_dashboard.api.rest import utils as rest_utils
 import json
-import bls_pf
+from . import bls_pf
 from django.http import HttpResponse
 from django.http import JsonResponse
 
