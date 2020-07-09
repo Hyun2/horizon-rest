@@ -30,16 +30,9 @@ from openstack_dashboard.api.rest import neutron
 from openstack_dashboard.api.rest import nova
 from openstack_dashboard.api.rest import policy
 from openstack_dashboard.api.rest import swift
-
+from . import _manila
 
 __all__ = [
-    'cinder',
-    'config',
-    'glance',
-    'keystone',
-    'network',
-    'neutron',
-    'nova',
-    'policy',
-    'swift',
+    'cinder', 'config', 'glance', 'keystone', 'network', 'neutron', 'nova',
+    'policy', 'swift', '_manila'
 ]

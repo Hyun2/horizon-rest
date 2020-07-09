@@ -184,4 +184,5 @@ def tenant_info(request):
 def user_info(request):
     return JsonResponse({
         "username": request.user.username,
+        "service_catalog": request.user.service_catalog,
     }, safe=False)
