@@ -6,7 +6,7 @@ class BlsNas:
     BASE = 'http://controller-vip-manage:8786/v2'
     headers = {
         'Content-Type': 'application/json; charset=utf-8',
-        'X-OpenStack-Manila-API-Version': '2.55',
+        'X-OpenStack-Manila-API-Version': '2.51',
     }
 
     def __init__(self):
