@@ -73,8 +73,3 @@ class BlsPortForwarding:
     def show(token, floating_ip_id):
         # /v2.0/floatingips/{floatingip_id}/port_forwardings/{port_forwarding_id}
         pass
-
-
-#pf = BlsPortForwarding()
-#params = {'id': '958178d0-a255-4414-b1ec-ed8495723d79'}
-#pf.list("gAAAAABe5zmds0q7DVaikhqHQFivAXSKTL39HeVSGZXX1nmJW4MP5ut2IN_cwVGdZtuyyNe_d5rFcM9P2PBkv3ym_CtxFypOmok1sro2wwHiE9MSff7sOFvBCTx_MqQDtLNxCipkp8nss5z77JBKts_P8vlSvMZVf1-KrqNMcFnvihPeS3tN77w",params)

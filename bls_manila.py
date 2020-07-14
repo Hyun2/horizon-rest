@@ -3,8 +3,7 @@ import requests
 
 
 class BlsNas:
-    BASE = 'http://10.254.1.112/share/v2'
-
+    BASE = 'http://controller-vip-manage:8786/v2'
 
     def __init__(self):
         pass
@@ -22,7 +21,8 @@ class BlsNas:
         url = '%s/%s/shares' % (self.BASE, project_id)
         headers = {
             'Content-Type': 'application/json; charset=utf-8',
-            'X-Auth-Token': token
+            'X-Auth-Token': token,
+            'X-OpenStack-Manila-API-Version': '2.10'
         }
         return requests.get(url, headers=headers)
 
