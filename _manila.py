@@ -11,12 +11,22 @@ from . import bls_manila
 
 
 @urls.register
+class Share(generic.View):
+    url_regex = r'manila/shares/versions/$'
+
+    nas = bls_manila.BlsNas()
+
+    def get(self, request):
+        return JsonResponse(self.nas.versions(request.user.token.id).json(),
+                            safe=False)
+
+
+@urls.register
 class Shares(generic.View):
     url_regex = r'manila/shares/(?P<project_id>[^/]+)/$'
 
     nas = bls_manila.BlsNas()
 
-    @rest_utils.ajax()
     def get(self, request, project_id):
         print(project_id)
         return JsonResponse(self.nas.list(request.user.token.id,
