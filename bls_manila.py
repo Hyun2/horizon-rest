@@ -1,5 +1,6 @@
 import json
 import requests
+from time import sleep
 
 
 class BlsNas:
@@ -57,12 +58,21 @@ class BlsNas:
 
     def detail_with_export_location(self, token, project_id, share_id):
         # /v2/{project_id}/shares
+        print(project_id, share_id)
         url = '%s/%s/shares/%s' % (self.BASE, project_id, share_id)
         print(url)
         self.headers['X-Auth-Token'] = token
 
         res = self.detail(token, project_id, share_id).json()
+        print('detail')
+        print(res)
         res1 = self.export_locations(token, project_id, share_id).json()
+        print('export_locations')
+        print(res1['export_locations'])
+        while (res1['export_locations'] == []):
+            sleep(1)
+            res1 = self.export_locations(token, project_id, share_id).json()
+
         for _ in res1['export_locations']:
             if '10.21.2.201' in _['path']:
                 export_location_id = _['id']
@@ -82,15 +92,11 @@ class BlsNas:
 
     def list_details(self, token, project_id):
         # /v2/{project_id}/shares
-        print('222')
         url = '%s/%s/shares/detail' % (self.BASE, project_id)
         self.headers['X-Auth-Token'] = token
         shares = requests.get(url, headers=self.headers).json()['shares']
-        print(shares)
 
         for share in shares:
-            print(share)
-            print(share['id'])
             export_locations = self.export_locations(token, project_id,
                                                      share['id']).json()
             for _ in export_locations['export_locations']:
@@ -100,7 +106,6 @@ class BlsNas:
             res = self.export_location(
                 token, project_id, share['id'],
                 export_location_id).json()['export_location']
-            print(res)
             share['export_location'] = res
 
         return shares

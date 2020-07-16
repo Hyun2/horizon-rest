@@ -32,9 +32,12 @@ class Shares(generic.View):
         params = request.DATA
         params['share_proto'] = "NFS"
         # params['share_type'] = "default_share_type"
-        print(params)
-        return JsonResponse(self.nas.create(request.user.token.id, project_id,
-                                            params).json(),
+        share = self.nas.create(request.user.token.id, project_id,
+                                            params).json()
+        print(share)
+        
+        return JsonResponse(self.nas.detail_with_export_location(
+            request.user.token.id, project_id, share['share']['id']),
                             safe=False)
 
     @rest_utils.ajax()
@@ -59,17 +62,17 @@ class ShareExtend(generic.View):
         return res
 
 
-# @urls.register
-# class ShareWithExportInfo(generic.View):
-#     url_regex = r'manila/(?P<project_id>[^/]+)/shares/(?P<share_id>[^/]+)/export/$'
+@urls.register
+class ShareWithExportInfo(generic.View):
+    url_regex = r'manila/(?P<project_id>[^/]+)/shares/(?P<share_id>[^/]+)/export/$'
 
-#     nas = bls_manila.BlsNas()
+    nas = bls_manila.BlsNas()
 
-#     @rest_utils.ajax()
-#     def get(self, request, project_id, share_id):
-#         return JsonResponse(self.nas.detail_with_export_location(
-#             request.user.token.id, project_id, share_id),
-#                             safe=False)
+    @rest_utils.ajax()
+    def get(self, request, project_id, share_id):
+        return JsonResponse(self.nas.detail_with_export_location(
+            request.user.token.id, project_id, share_id),
+                            safe=False)
 
 # @urls.register
 # class SharesDetails(generic.View):
