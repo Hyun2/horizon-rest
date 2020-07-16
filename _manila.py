@@ -44,3 +44,28 @@ class Shares(generic.View):
     @rest_utils.ajax()
     def delete(self, request, project_id):
         pass
+
+
+@urls.register
+class SharesDetails(generic.View):
+    url_regex = r'manila/(?P<project_id>[^/]+)/shares/details/$'
+
+    nas = bls_manila.BlsNas()
+
+    def get(self, request, project_id):
+        print(project_id)
+        return JsonResponse(self.nas.list_details(request.user.token.id,
+                                          project_id).json(),
+                            safe=False)
+
+    @rest_utils.ajax()
+    def post(self, request, project_id):
+        pass
+
+    @rest_utils.ajax()
+    def put(self, request, project_id):
+        pass
+
+    @rest_utils.ajax()
+    def delete(self, request, project_id):
+        pass

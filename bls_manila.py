@@ -25,7 +25,14 @@ class BlsNas:
 
     def list(self, token, project_id):
         # /v2/{project_id}/shares
-        url = '%s/%s/shares' % (self.BASE, project_id)
+        url = '%s/%s/shares/' % (self.BASE, project_id)
+        print(url)
+        self.headers['X-Auth-Token'] = token
+        return requests.get(url, headers=self.headers)
+
+    def list_details(self, token, project_id):
+        # /v2/{project_id}/shares
+        url = '%s/%s/shares/details/' % (self.BASE, project_id)
         print(url)
         self.headers['X-Auth-Token'] = token
         return requests.get(url, headers=self.headers)
