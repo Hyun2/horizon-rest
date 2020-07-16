@@ -119,6 +119,14 @@ class BlsNas:
         res = requests.delete(url, headers=self.headers)
         return res
 
+    def get_rules(self, token, project_id, share_id):
+        # /v2/{project_id}/share-access-rules?share_id={share-id}
+        url = '%s/%s/share-access-rules?share_id=%s' % (self.BASE, project_id,
+                                                        share_id)
+        print(url)
+
+        return requests.get(url, headers=self.headers).json()
+
     # def update(self, token, project_id, params):
     #     # /v2.0/project_id/shares/{share_id}
 

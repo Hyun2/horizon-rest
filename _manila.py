@@ -33,9 +33,9 @@ class Shares(generic.View):
         params['share_proto'] = "NFS"
         # params['share_type'] = "default_share_type"
         share = self.nas.create(request.user.token.id, project_id,
-                                            params).json()
+                                params).json()
         print(share)
-        
+
         return JsonResponse(self.nas.detail_with_export_location(
             request.user.token.id, project_id, share['share']['id']),
                             safe=False)
@@ -74,6 +74,20 @@ class ShareWithExportInfo(generic.View):
             request.user.token.id, project_id, share_id),
                             safe=False)
 
+
+@urls.register
+class GetRules(generic.View):
+    url_regex = r'manila/(?P<project_id>[^/]+)/share-access-rules/(?P<share_id>[^/]+)/$'
+
+    nas = bls_manila.BlsNas()
+
+    @rest_utils.ajax()
+    def get(self, request, project_id, share_id):
+        return JsonResponse(self.nas.get_rules(request.user.token.id,
+                                               project_id, share_id),
+                            safe=False)
+
+
 # @urls.register
 # class SharesDetails(generic.View):
 #     url_regex = r'manila/(?P<project_id>[^/]+)/shares/detail/$'
@@ -85,4 +99,3 @@ class ShareWithExportInfo(generic.View):
 #         return JsonResponse(self.nas.list_details(request.user.token.id,
 #                                                   project_id),
 #                             safe=False)
-
