@@ -460,6 +460,12 @@ class VolumeSnapshot(generic.View):
         # print(volume_snapshot_id)
         return api.cinder.volume_snapshot_delete(request, volume_snapshot_id)
 
+    @rest_utils.ajax()
+    def post(self, request, volume_snapshot_id):
+        name = request.DATA['name']
+        description = request.DATA['description']
+        return api.cinder.volume_snapshot_update(request, volume_snapshot_id,name,description)
+
 
 @urls.register
 class createVolumeImage(generic.View):
