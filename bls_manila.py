@@ -127,6 +127,25 @@ class BlsNas:
 
         return requests.get(url, headers=self.headers).json()
 
+    def create_rule(self, token, project_id, share_id, params):
+        # /v2/{project_id}/shares/{share_id}/action
+        url = '%s/%s/shares/%s/action' % (self.BASE, project_id, share_id)
+
+        return requests.post(url,
+                             headers=self.headers,
+                             json={
+                                 "allow_access": params
+                             }).json()
+
+    def delete_rule(self, token, project_id, share_id, params):
+        # /v2/{project_id}/shares/{share_id}/action
+        url = '%s/%s/shares/%s/action' % (self.BASE, project_id, share_id)
+        print(project_id, share_id)
+        print(params)
+        return requests.post(url,
+                             headers=self.headers,
+                             json={"deny_access": params})
+
     # def update(self, token, project_id, params):
     #     # /v2.0/project_id/shares/{share_id}
 

@@ -76,7 +76,7 @@ class ShareWithExportInfo(generic.View):
 
 
 @urls.register
-class GetRules(generic.View):
+class Rules(generic.View):
     url_regex = r'manila/(?P<project_id>[^/]+)/share-access-rules/(?P<share_id>[^/]+)/$'
 
     nas = bls_manila.BlsNas()
@@ -86,6 +86,30 @@ class GetRules(generic.View):
         return JsonResponse(self.nas.get_rules(request.user.token.id,
                                                project_id, share_id),
                             safe=False)
+
+
+@urls.register
+class createRule(generic.View):
+    url_regex = r'manila/(?P<project_id>[^/]+)/shares/(?P<share_id>[^/]+)/action/$'
+
+    nas = bls_manila.BlsNas()
+
+    @rest_utils.ajax()
+    def post(self, request, project_id, share_id):
+        params = request.DATA
+        params['access_type'] = 'ip'
+        # return {}
+        return JsonResponse(self.nas.create_rule(request.user.token.id,
+                                                 project_id, share_id, params),
+                            safe=False)
+
+    @rest_utils.ajax()
+    def delete(self, request, project_id, share_id):
+        params = request.DATA
+        # params['access_type'] = 'ip'
+        # return {}
+        return self.nas.delete_rule(request.user.token.id, project_id,
+                                    share_id, params)
 
 
 # @urls.register
