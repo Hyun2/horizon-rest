@@ -110,6 +110,12 @@ class Volume(generic.View):
     def delete(self, request, volume_id):
         api.cinder.volume_delete(request, volume_id)
 
+    @rest_utils.ajax()
+    def post(self, request, volume_id):
+        name = request.DATA['name']
+        description = request.DATA['description']
+        api.cinder.volume_update(request, volume_id, name, description)
+
 
 @urls.register
 class VolumeTypes(generic.View):
@@ -464,7 +470,8 @@ class VolumeSnapshot(generic.View):
     def post(self, request, volume_snapshot_id):
         name = request.DATA['name']
         description = request.DATA['description']
-        return api.cinder.volume_snapshot_update(request, volume_snapshot_id,name,description)
+        return api.cinder.volume_snapshot_update(request, volume_snapshot_id,
+                                                 name, description)
 
 
 @urls.register
