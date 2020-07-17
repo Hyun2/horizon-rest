@@ -36,9 +36,8 @@ class BlsNas:
     def detail(self, token, project_id, share_id):
         # /v2/{project_id}/shares
         url = '%s/%s/shares/%s' % (self.BASE, project_id, share_id)
-        print(url)
         self.headers['X-Auth-Token'] = token
-        return requests.get(url, headers=self.headers)
+        return requests.get(url, headers=self.headers).json()
 
     def export_locations(self, token, project_id, share_id):
         # /v2/{project_id}/shares
