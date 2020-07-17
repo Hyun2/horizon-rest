@@ -20,6 +20,10 @@ class Share(generic.View):
     def delete(self, request, project_id, share_id):
         return self.nas.delete(request.user.token.id, project_id, share_id)
 
+    @rest_utils.ajax()
+    def get(self, request, project_id, share_id):
+        return self.nas.detail(request.user.token.id, project_id, share_id)
+
 
 @urls.register
 class Shares(generic.View):
