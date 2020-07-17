@@ -89,7 +89,7 @@ class Rules(generic.View):
 
 
 @urls.register
-class createRule(generic.View):
+class manageRule(generic.View):
     url_regex = r'manila/(?P<project_id>[^/]+)/shares/(?P<share_id>[^/]+)/action/$'
 
     nas = bls_manila.BlsNas()
