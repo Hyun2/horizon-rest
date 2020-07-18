@@ -137,7 +137,10 @@ class Ports(generic.View):
         result = api.neutron.port_list_with_trunk_types(
             request, **request.GET.dict())
         return {'items': [n.to_dict() for n in result]}
-
+    @rest_utils.ajax(data_required=True)
+    def post(self, request):
+        subnet_id = request.DATA['network_id']
+        return api.neutron.port_create(request, **request.DATA)
 
 @urls.register
 class Trunk(generic.View):
