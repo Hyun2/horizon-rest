@@ -419,6 +419,13 @@ class Server(generic.View):
     def delete(self, request, server_id):
         api.nova.server_delete(request, server_id)
 
+    #BLS custom api
+    @rest_utils.ajax()
+    def patch(self, request, server_id):
+        name = request.DATA.get('name')
+        description = request.DATA.get('description',None)
+        api.nova.server_update(request, server_id,name,description)
+
 
 @urls.register
 class ServerGroups(generic.View):

@@ -855,3 +855,79 @@ class BLSProject(generic.View):
                 return JsonResponse(value.message, status=400, safe=False)
             else:
                 return JsonResponse("error", status=400, safe=False)
+
+
+@urls.register
+class DeleteBLSProject(generic.View):
+    url_regex = r'keystone/bls-project/(?P<project_id>[0-9a-f]+)/$'
+
+    @rest_utils.ajax()
+    def delete(self, request, project_id):
+        routers = api.neutron.router_list(request, tenant_id=project_id)
+        networks = api.neutron.network_list_for_tenant(request,
+                                                       tenant_id=project_id,
+                                                       shared=False)
+
+        # subnets = api.neutron.subnet_list(request, network_id=network_id)
+        subnets = []
+        for network in networks:
+            subnets += api.neutron.subnet_list(request,
+                                               network_id=network['id'])
+        shared_networks = api.neutron.network_list_for_tenant(
+            request, tenant_id=project_id, shared=True)
+        shared_networks_ids = [network['id'] for network in shared_networks]
+
+        for router in routers:
+            for subnet in subnets:
+                ports = api.neutron.port_list_with_trunk_types(
+                    self.request, device_id=router['id'])
+
+                for port in ports:
+                    try:
+                        api.neutron.router_remove_interface(
+                            request,
+                            router_id=router['id'],
+                            subnet_id=subnet['id'],
+                            port_id=port['id'])
+                    except:
+                        pass
+
+        f_ips = api.neutron.tenant_floating_ip_list(request,
+                                                    all_tenants=True,
+                                                    project_id=project_id)
+        f_ips = [ip.to_dict() for ip in f_ips]
+        for f_ip in f_ips:
+            api.neutron.floating_ip_disassociate(request, f_ip['id'])
+
+        for router in routers:
+            api.neutron.router_delete(request, router['id'])
+
+        search_opts = {
+            'project_id': project_id,
+            'paginate': False,
+            "all_tenants": True
+        }
+        servers = api.nova.server_list(request, search_opts=search_opts)[0]
+        servers = [s.to_dict() for s in servers]
+
+        for server in servers:
+            api.nova.server_delete(request, server['id'])
+
+        volumes = api.cinder.volume_list(request, search_opts=search_opts)
+        volumes = [v.to_dict() for v in volumes]
+
+        for subnet in subnets:
+            api.neutron.subnet_delete(request, subnet['id'])
+
+        for network in networks:
+            if network['id'] in shared_networks_ids:
+                continue
+            api.neutron.network_delete(request, network['id'])
+
+        for volume in volumes:
+            api.cinder.volume_delete(request, volume['id'])
+
+        for f_ip in f_ips:
+            api.neutron.tenant_floating_ip_release(request, f_ip['id'])
+
+        return django.http.HttpResponse(status=204)
