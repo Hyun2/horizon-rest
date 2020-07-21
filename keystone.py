@@ -933,6 +933,6 @@ class DeleteBLSProject(generic.View):
         for f_ip in f_ips:
             api.neutron.tenant_floating_ip_release(request, f_ip['id'])
 
-        api.keystone.tenant_delete(request, id=project_id)
+        api.keystone.tenant_delete(request, project_id)
 
         return django.http.HttpResponse(status=204)
