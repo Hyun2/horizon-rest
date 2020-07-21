@@ -23,7 +23,7 @@ from openstack_dashboard import api
 from openstack_dashboard.api.rest import urls
 from openstack_dashboard.api.rest import utils as rest_utils
 from openstack_dashboard.utils import identity as identity_utils
-import sys
+import sys, time
 from django.http import JsonResponse
 
 
@@ -825,6 +825,7 @@ class BLSProject(generic.View):
                 ports_id = [port.id for port in ports if port['name'] == '']
 
                 for port_id in ports_id:
+                    # time.sleep(0.1)
                     api.neutron.router_remove_interface(
                         request,
                         router_id=new_router.id,
@@ -877,6 +878,13 @@ class DeleteBLSProject(generic.View):
             request, tenant_id=project_id, shared=True)
         shared_networks_ids = [network['id'] for network in shared_networks]
 
+        f_ips = api.neutron.tenant_floating_ip_list(request,
+                                                    all_tenants=True,
+                                                    project_id=project_id)
+        f_ips = [ip.to_dict() for ip in f_ips]
+        for f_ip in f_ips:
+            api.neutron.floating_ip_disassociate(request, f_ip['id'])
+
         for router in routers:
             for subnet in subnets:
                 ports = api.neutron.port_list_with_trunk_types(
@@ -884,6 +892,7 @@ class DeleteBLSProject(generic.View):
 
                 for port in ports:
                     try:
+                        time.sleep(0.1)
                         api.neutron.router_remove_interface(
                             request,
                             router_id=router['id'],
@@ -891,13 +900,6 @@ class DeleteBLSProject(generic.View):
                             port_id=port['id'])
                     except:
                         pass
-
-        f_ips = api.neutron.tenant_floating_ip_list(request,
-                                                    all_tenants=True,
-                                                    project_id=project_id)
-        f_ips = [ip.to_dict() for ip in f_ips]
-        for f_ip in f_ips:
-            api.neutron.floating_ip_disassociate(request, f_ip['id'])
 
         for router in routers:
             api.neutron.router_delete(request, router['id'])
@@ -911,6 +913,7 @@ class DeleteBLSProject(generic.View):
         servers = [s.to_dict() for s in servers]
 
         for server in servers:
+            time.sleep(0.1)
             api.nova.server_delete(request, server['id'])
 
         volumes = api.cinder.volume_list(request, search_opts=search_opts)
