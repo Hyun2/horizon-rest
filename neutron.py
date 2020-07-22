@@ -384,7 +384,7 @@ class Router(generic.View):
         return api.neutron.router_update(request, router_id, **request.DATA)
 
     @rest_utils.ajax()
-    def delete(self, erquest, router_id):
+    def delete(self, request, router_id):
         return api.neutron.router_delete(request, router_id)
 
 
