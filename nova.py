@@ -849,7 +849,7 @@ class DetachVolume(generic.View):
 
     @rest_utils.ajax()
     def post(self, request, server_id, volume_id):
-        result = api.nova.instance_volume_detach(request, server_id, volume_id)
+        api.nova.instance_volume_detach(request, server_id, volume_id)
         return HttpResponse(status=204)
 
 
@@ -864,11 +864,25 @@ class ManageNasInterface(generic.View):
         for shared_network in shared_networks:
             if shared_network['name'] == 'net_str':
                 nas_network_id = shared_network['id']
+                break
 
-        result = api.nova.interface_attach(request, server_id, nas_network_id)
+        api.nova.interface_attach(request, server_id, net_id=nas_network_id)
         return HttpResponse(status=204)
 
     @rest_utils.ajax()
     def delete(self, request, server_id):
-        # result = api.nova.interface_detach(request, server_id, port_id)
+        shared_networks = api.neutron.network_list(request, shared=True)
+
+        for shared_network in shared_networks:
+            if shared_network['name'] == 'net_str':
+                nas_network_id = shared_network['id']
+                break
+
+        ports = api.neutron.port_list_with_trunk_types(request,
+                                                     device_id=server_id)
+        for port in ports:
+            if port['network_id'] == nas_network_id:
+                nas_port_id = port['id']
+
+        api.nova.interface_detach(request, server_id, nas_port_id)
         return HttpResponse(status=204)
