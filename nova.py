@@ -886,3 +886,18 @@ class ManageNasInterface(generic.View):
 
         api.nova.interface_detach(request, server_id, nas_port_id)
         return HttpResponse(status=204)
+
+
+@urls.register
+class ManageServerInterface(generic.View):
+    url_regex = r'nova/servers/(?P<server_id>[^/]+)/manage-server-interface/$'
+
+    @rest_utils.ajax()
+    def post(self, request, server_id):
+        network_id = request.DATA['network_id']
+        return api.nova.interface_attach(request, server_id, network_id)
+
+    @rest_utils.ajax()
+    def delete(self, request, server_id):
+        port_id = request.DATA['port_id']
+        return api.nova.interface_detach(request, server_id, port_id)
