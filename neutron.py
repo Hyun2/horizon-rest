@@ -75,6 +75,11 @@ class Networks(generic.View):
         network_id = request.DATA['network_id']
         return api.neutron.network_delete(request,network_id)
 
+    def delete(self, request):
+        network_id = request.DATA['network_id']
+        return api.neutron.network_delete(request,network_id)
+
+
 @urls.register
 class Subnets(generic.View):
     """API for Neutron Subnets
