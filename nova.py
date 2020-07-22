@@ -895,7 +895,7 @@ class ManageServerInterface(generic.View):
     @rest_utils.ajax()
     def post(self, request, server_id):
         network_id = request.DATA['network_id']
-        return api.nova.interface_attach(request, server_id, network_id)
+        return api.nova.interface_attach(request, server_id, net_id=network_id)
 
     @rest_utils.ajax()
     def delete(self, request, server_id):
