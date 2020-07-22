@@ -73,7 +73,11 @@ class Networks(generic.View):
 
     def delete(self, request):
         network_id = request.DATA['network_id']
-        return api.neutron.network_delete(request,network_id)
+        return api.neutron.network_delete(request, network_id)
+
+    def delete(self, request):
+        network_id = request.DATA['network_id']
+        return api.neutron.network_delete(request, network_id)
 
 
 @urls.register
@@ -416,8 +420,6 @@ class Subnet(generic.View):
     @rest_utils.ajax()
     def delete(self, request, subnet_id):
         return api.neutron.subnet_delete(request, subnet_id)
-
-
 
 
 @urls.register
