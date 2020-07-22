@@ -137,7 +137,7 @@ class Ports(generic.View):
         result = api.neutron.port_list_with_trunk_types(
             request, **request.GET.dict())
         return {'items': [n.to_dict() for n in result]}
-    
+
     @rest_utils.ajax(data_required=True)
     def post(self, request):
         subnet_id = request.DATA['network_id']
@@ -147,6 +147,7 @@ class Ports(generic.View):
     def put(self, request):
         subnet_id = request.DATA['network_id']
         return api.neutron.port_update(request, subnet_id, **request.DATA)
+
 
 @urls.register
 class Trunk(generic.View):
@@ -383,13 +384,9 @@ class Router(generic.View):
         return api.neutron.router_update(request, router_id, **request.DATA)
 
     @rest_utils.ajax()
-    def delete(self, erquest, router_id):
+    def delete(self, request, router_id):
         return api.neutron.router_delete(request, router_id)
 
-<<<<<<< HEAD
-
-=======
->>>>>>> ac732b76441379ee38dde1e85b56740414f67a6a
 
 @urls.register
 class Network(generic.View):

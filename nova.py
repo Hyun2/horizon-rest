@@ -879,7 +879,7 @@ class ManageNasInterface(generic.View):
                 break
 
         ports = api.neutron.port_list_with_trunk_types(request,
-                                                     device_id=server_id)
+                                                       device_id=server_id)
         for port in ports:
             if port['network_id'] == nas_network_id:
                 nas_port_id = port['id']
@@ -896,9 +896,8 @@ class ManageServerInterface(generic.View):
     def post(self, request, server_id):
         network_id = request.DATA['network_id']
         return api.nova.interface_attach(request, server_id, network_id)
- 
+
     @rest_utils.ajax()
     def delete(self, request, server_id):
         port_id = request.DATA['port_id']
         return api.nova.interface_detach(request, server_id, port_id)
-
