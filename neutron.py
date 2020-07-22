@@ -142,6 +142,11 @@ class Ports(generic.View):
         subnet_id = request.DATA['network_id']
         return api.neutron.port_create(request, **request.DATA)
 
+    @rest_utils.ajax(data_required=True)
+    def put(self, request):
+        subnet_id = request.DATA['network_id']
+        return api.neutron.port_update(request, **request.DATA)
+
 @urls.register
 class Trunk(generic.View):
     """API for a single neutron Trunk"""
