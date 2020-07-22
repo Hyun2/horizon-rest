@@ -62,7 +62,7 @@ class BlsNas:
         print(url)
         self.headers['X-Auth-Token'] = token
 
-        res = self.detail(token, project_id, share_id).json()
+        res = self.detail(token, project_id, share_id)
         print('detail')
         print(res)
         res1 = self.export_locations(token, project_id, share_id).json()
