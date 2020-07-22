@@ -372,6 +372,14 @@ class Router(generic.View):
     def get(self, request, router_id):
         return api.neutron.router_get(request, router_id)
 
+    @rest_utils.ajax()
+    def put(self, request, router_id):
+        return api.neutron.router_update(request, router_id, **request.DATA)
+
+    @rest_utils.ajax()
+    def delete(self, erquest, router_id):
+        return api.neutron.router_delete(request, router_id)
+
 
 @urls.register
 class Network(generic.View):
