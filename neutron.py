@@ -25,6 +25,35 @@ from django.http import HttpResponse, JsonResponse
 
 
 @urls.register
+class Network(generic.View):
+    url_regex = r'neutron/networks/(?P<network_id>[^/]+)/$'
+
+    @rest_utils.ajax()
+    def get(self, request, network_id):
+        return api.neutron.network_get(request, network_id)
+
+    @rest_utils.ajax()
+    def delete(self, request, network_id):
+        network_ports = api.neutron.port_list_with_trunk_types(
+            request, network_id=network_id)
+
+        for net_port in network_ports:
+            if 'network:router' in net_port['device_owner']:
+                try:
+                    api.neutron.router_remove_interface(
+                        request,
+                        router_id=net_port['device_id'],
+                        port_id=net_port['id'])
+                except:
+                    pass
+            # elif 'compute:nova' in net_port['device_owner']:
+            #     return JsonResponse({"status": 0}, status=200, safe=False)
+
+        api.neutron.network_delete(request, network_id)
+        return JsonResponse({'status': 1}, status=200, safe=False)
+
+
+@urls.register
 class Networks(generic.View):
     """API for Neutron Networks
 
@@ -387,35 +416,6 @@ class Router(generic.View):
     @rest_utils.ajax()
     def delete(self, request, router_id):
         return api.neutron.router_delete(request, router_id)
-
-
-@urls.register
-class Network(generic.View):
-    url_regex = r'neutron/networks/(?P<network_id>[^/]+)/$'
-
-    @rest_utils.ajax()
-    def get(self, request, network_id):
-        return api.neutron.network_get(request, network_id)
-
-    @rest_utils.ajax()
-    def delete(self, request, network_id):
-        network_ports = api.neutron.port_list_with_trunk_types(
-            request, network_id=network_id)
-
-        for net_port in network_ports:
-            if 'network:router' in net_port['device_owner']:
-                try:
-                    api.neutron.router_remove_interface(
-                        request,
-                        router_id=net_port['device_id'],
-                        port_id=net_port['id'])
-                except:
-                    pass
-            # elif 'compute:nova' in net_port['device_owner']:
-            #     return JsonResponse({"status": 0}, status=200, safe=False)
-
-        api.neutron.network_delete(request, network_id)
-        return JsonResponse({'status': 1}, status=200, safe=False)
 
 
 @urls.register
