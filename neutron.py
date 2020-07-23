@@ -399,7 +399,24 @@ class Network(generic.View):
 
     @rest_utils.ajax()
     def delete(self, request, network_id):
-        #network_id = request.DATA['network_id']
+        # return api.neutron.port_list(self.request, device_id=router_id)
+
+        # network = api.neutron.network_get(request, network_id)
+        # subnets = network['subnets']
+
+        network_ports = api.neutron.port_list_with_trunk_types(
+            request, network_id=network_id)
+
+        for net_port in network_ports:
+            if 'network:router' in net_port['device_owner']:
+                try:
+                    api.neutron.router_remove_interface(
+                        request,
+                        router_id=net_port['device_id'],
+                        port_id=net_port['id'])
+                except:
+                    pass
+
         return api.neutron.network_delete(request, network_id)
 
 
