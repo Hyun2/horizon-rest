@@ -426,8 +426,8 @@ class Subnet(generic.View):
         subnet_ports = []
         router_attached_ports = []
         for net_port in network_ports:
-            for sub_port in net_port.fixed_ips:
-                if sub_port['subnet_id'] == subnet_id:
+            for fixed_ip in net_port.fixed_ips:
+                if fixed_ip['subnet_id'] == subnet_id:
                     subnet_ports.append(net_port)
                     if 'network:router' in net_port['device_owner']:
                         router_id = net_port['device_id']
@@ -462,45 +462,3 @@ class RouterPorts(generic.View):
         # return api.neutron.port_list(self.request, device_id=router_id)
         return api.neutron.port_list_with_trunk_types(self.request,
                                                       device_id=router_id)
-
-
-@urls.register
-class SubnetPorts(generic.View):
-    url_regex = r'neutron/subnets/(?P<subnet_id>[^/]+)/ports/$'
-
-    @rest_utils.ajax()
-    def delete(self, request, subnet_id):
-        # return api.neutron.port_list(self.request, device_id=router_id)
-        subnet = api.neutron.subnet_get(request, subnet_id)
-
-        network_ports = api.neutron.port_list_with_trunk_types(
-            request, network_id=subnet['network_id'])
-
-        subnet_ports = []
-        router_attached_ports = []
-        for net_port in network_ports:
-            for sub_port in net_port.fixed_ips:
-                if sub_port['subnet_id'] == subnet_id:
-                    subnet_ports.append(net_port)
-                    if 'network:router' in net_port['device_owner']:
-                        router_id = net_port['device_id']
-                        router_attached_ports.append(net_port)
-                    break
-
-        for router_attached_port in router_attached_ports:
-            try:
-                api.neutron.router_remove_interface(
-                    request,
-                    router_id=router_id,
-                    subnet_id=subnet_id,
-                    port_id=router_attached_port['id'])
-            except:
-                pass
-
-        for subnet_port in subnet_ports:
-            try:
-                api.neutron.port_delete(request, port_id=subnet_port['id'])
-            except:
-                pass
-
-        return api.neutron.subnet_delete(request, subnet_id)
