@@ -21,7 +21,7 @@ from openstack_dashboard import api
 from openstack_dashboard.api.rest import urls
 from openstack_dashboard.api.rest import utils as rest_utils
 from openstack_dashboard.usage import quotas
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 
 @urls.register
@@ -399,11 +399,6 @@ class Network(generic.View):
 
     @rest_utils.ajax()
     def delete(self, request, network_id):
-        # return api.neutron.port_list(self.request, device_id=router_id)
-
-        # network = api.neutron.network_get(request, network_id)
-        # subnets = network['subnets']
-
         network_ports = api.neutron.port_list_with_trunk_types(
             request, network_id=network_id)
 
@@ -416,8 +411,11 @@ class Network(generic.View):
                         port_id=net_port['id'])
                 except:
                     pass
+            # elif 'compute:nova' in net_port['device_owner']:
+            #     return JsonResponse({"status": 0}, status=200, safe=False)
 
-        return api.neutron.network_delete(request, network_id)
+        api.neutron.network_delete(request, network_id)
+        return JsonResponse({'status': 1}, status=200, safe=False)
 
 
 @urls.register
@@ -449,6 +447,10 @@ class Subnet(generic.View):
                     if 'network:router' in net_port['device_owner']:
                         router_id = net_port['device_id']
                         router_attached_ports.append(net_port)
+                    # elif 'compute:nova' in net_port['device_owner']:
+                    #     return JsonResponse({"status": 0},
+                    #                         status=200,
+                    #                         safe=False)
                     break
 
         for router_attached_port in router_attached_ports:
@@ -467,7 +469,8 @@ class Subnet(generic.View):
             except:
                 pass
 
-        return api.neutron.subnet_delete(request, subnet_id)
+        api.neutron.subnet_delete(request, subnet_id)
+        return JsonResponse({"status": 1}, status=200, safe=False)
 
 
 @urls.register
