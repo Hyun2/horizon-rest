@@ -49,6 +49,11 @@ class Network(generic.View):
             # elif 'compute:nova' in net_port['device_owner']:
             #     return JsonResponse({"status": 0}, status=200, safe=False)
 
+        network = api.neutron.network_get(request, network_id)
+
+        for subnet in network['subnets']:
+            api.neutron.subnet_delete(request, subnet['id'])
+
         api.neutron.network_delete(request, network_id)
         return JsonResponse({'status': 1}, status=200, safe=False)
 
