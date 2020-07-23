@@ -214,6 +214,12 @@ class SecurityGroups(generic.View):
         groups = api.neutron.server_security_groups(request, server_id)
         return {'items': [s.to_dict() for s in groups]}
 
+    #bls_api
+
+    @rest_utils.ajax(data_required=True)
+    def post(self, request, server_id):
+        security_groups = request.DATA.get('security_groups')
+        return api.neutron.server_update_security_groups(request, server_id,security_groups)
 
 @urls.register
 class Volumes(generic.View):
