@@ -46,6 +46,11 @@ class Network(generic.View):
                         port_id=net_port['id'])
                 except:
                     pass
+            elif not 'network:dhcp' == net_port['device_owner']:
+                try:
+                    api.neutron.port_delete(request, net_port['id'])
+                except:
+                    pass
             # elif 'compute:nova' in net_port['device_owner']:
             #     return JsonResponse({"status": 0}, status=200, safe=False)
 
@@ -452,6 +457,12 @@ class Subnet(generic.View):
                     if 'network:router' in net_port['device_owner']:
                         router_id = net_port['device_id']
                         router_attached_ports.append(net_port)
+                    # for removing [Detached] port
+                    elif not 'network:dhcp' == net_port['device_owner']:
+                        try:
+                            api.neutron.port_delete(request, net_port['id'])
+                        except:
+                            pass
                     # elif 'compute:nova' in net_port['device_owner']:
                     #     return JsonResponse({"status": 0},
                     #                         status=200,
