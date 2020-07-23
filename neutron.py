@@ -398,7 +398,7 @@ class RouterAddInterface(generic.View):
 
 @urls.register
 class SpecificProjectNetworks(generic.View):
-    url_regex = r'neutron/networks/(?P<project_id>[^/]+)/$'
+    url_regex = r'neutron/networks/projects/(?P<project_id>[^/]+)/$'
 
     @rest_utils.ajax()
     def get(self, request, project_id):
