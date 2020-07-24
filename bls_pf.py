@@ -52,6 +52,7 @@ class BlsPortForwarding:
 
             result += requests.get(url,
                                    headers=headers).json()['port_forwardings']
+            print(result)
 
         return result
 
