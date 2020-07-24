@@ -212,7 +212,7 @@ class PortForwadings(generic.View):
             {
                 "port_forwardings":
                 self.pf.pf_list_of_ip_list(request.user.token.id,
-                                           request.DATA['fip_id_list'])
+                                           request.DATA['fip_list'])
             },
             safe=False)
 
