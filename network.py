@@ -207,7 +207,7 @@ class PortForwadings(generic.View):
     pf = bls_pf.BlsPortForwarding()
 
     @rest_utils.ajax()
-    def get(self, request):
+    def post(self, request):
         print(request.DATA)
         print(json.loads(request.body))
         print(request.DATA['fip_id_list'])
