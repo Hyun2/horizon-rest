@@ -39,7 +39,7 @@ class BlsPortForwarding:
         }
         return requests.get(url, headers=headers)
 
-    def pf_list_of_ip_list(self, token, fip_id_list):
+    def pf_list_of_ip_list(self, token, fip_list):
         # /v2.0/floatingips/{floatingip_id}/port_forwardings
         headers = {
             'Content-Type': 'application/json; charset=utf-8',
@@ -47,13 +47,17 @@ class BlsPortForwarding:
         }
 
         result = []
-        for fip_id in fip_id_list:
-            print(fip_id)
-            url = '%s/%s/port_forwardings' % (self.BASE, fip_id)
-            print(url)
-            res = requests.get(url, headers=headers).json()['port_forwardings']
-            print(res)
-            result += res
+        for fip in fip_list:
+            url = '%s/%s/port_forwardings' % (self.BASE, fip['id'])
+
+            pf_list = requests.get(url,
+                                   headers=headers).json()['port_forwardings']
+            if pf_list:
+                for pf in pf_list:
+                    pf['fip'] = fip['ip']
+            result += pf_list
+            # if pf:
+            #     result.append({"fip": fip['ip'], "pf": pf})
 
         return result
 
