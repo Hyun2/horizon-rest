@@ -50,10 +50,10 @@ class BlsPortForwarding:
         for fip_id in fip_id_list:
             print(fip_id)
             url = '%s/%s/port_forwardings' % (self.BASE, fip_id)
-
-            result += requests.get(url,
-                                   headers=headers).json()['port_forwardings']
-            print(result)
+            print(url)
+            res = requests.get(url, headers=headers).json()['port_forwardings']
+            print(res)
+            result += res
 
         return result
 
