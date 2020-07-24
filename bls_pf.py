@@ -39,6 +39,22 @@ class BlsPortForwarding:
         }
         return requests.get(url, headers=headers)
 
+    def pf_list_of_ip_list(self, token, floating_ip_id_list):
+        # /v2.0/floatingips/{floatingip_id}/port_forwardings
+        headers = {
+            'Content-Type': 'application/json; charset=utf-8',
+            'X-Auth-Token': token
+        }
+
+        result = []
+        for floating_ip_id in floating_ip_id_list:
+            url = '%s/%s/port_forwardings' % (self.BASE, floating_ip_id)
+
+            result += requests.get(url,
+                                   headers=headers).json()['port_forwardings']
+
+        return result
+
     def delete(self, token, floating_ip_id, port_forwarding_id):
         # /v2.0/floatingips/{floatingip_id}/port_forwardings/{port_forwarding_id}
         url = '%s/%s/port_forwardings/%s' % (self.BASE, floating_ip_id,
