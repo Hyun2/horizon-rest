@@ -208,12 +208,12 @@ class PortForwadings(generic.View):
 
     @rest_utils.ajax()
     def get(self, request):
-        print(request.DATA['floating_ip_id_list'])
+        print(request.DATA['fip_id_list'])
         return JsonResponse(
             {
                 "port_forwardings":
                 self.pf.pf_list_of_ip_list(request.user.token.id,
-                                           request.DATA['floating_ip_id_list'])
+                                           request.DATA['fip_id_list'])
             },
             safe=False)
 
