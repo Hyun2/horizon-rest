@@ -48,6 +48,7 @@ class BlsPortForwarding:
 
         result = []
         for fip_id in fip_id_list:
+            print(fip_id)
             url = '%s/%s/port_forwardings' % (self.BASE, fip_id)
 
             result += requests.get(url,

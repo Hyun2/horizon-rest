@@ -208,9 +208,6 @@ class PortForwadings(generic.View):
 
     @rest_utils.ajax()
     def post(self, request):
-        print(request.DATA)
-        print(json.loads(request.body))
-        print(request.DATA['fip_id_list'])
         return JsonResponse(
             {
                 "port_forwardings":
