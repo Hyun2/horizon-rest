@@ -179,8 +179,8 @@ class FloatingIPPortForwadings2(generic.View):
 
     @rest_utils.ajax()
     def post(self, request, floating_ip_id):
-        print(json.loads(request.body))
-        print(request.body)
+        # print(json.loads(request.body))
+        # print(request.body)
         return JsonResponse(self.pf.create(request.user.token.id,
                                            floating_ip_id,
                                            json.loads(request.body)).json(),
@@ -193,10 +193,29 @@ class FloatingIPPortForwadings2(generic.View):
 
     @rest_utils.ajax()
     def delete(self, request, floating_ip_id):
-        print(request.DATA['port_forwarding_id'])
+        # print(request.DATA['port_forwarding_id'])
         # return {}
         return self.pf.delete(request.user.token.id, floating_ip_id,
                               request.DATA['port_forwarding_id'])
+
+
+@urls.register
+class PortForwadings(generic.View):
+    """API for floating IP portForwardings."""
+    url_regex = r'network/port-forwarding/$'
+
+    pf = bls_pf.BlsPortForwarding()
+
+    @rest_utils.ajax()
+    def get(self, request):
+        print(request.DATA['floating_ip_id_list'])
+        return JsonResponse(
+            {
+                "port_forwardings":
+                self.pf.pf_list_of_ip_list(request.user.token.id,
+                                           request.DATA['floating_ip_id_list'])
+            },
+            safe=False)
 
 
 ##################
