@@ -55,6 +55,7 @@ class BlsPortForwarding:
             if pf_list:
                 for pf in pf_list:
                     pf['fip'] = fip['ip']
+                    pf['fip_id'] = fip['id']
             result += pf_list
             # if pf:
             #     result.append({"fip": fip['ip'], "pf": pf})
