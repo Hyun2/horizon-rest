@@ -1,6 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.contrib.auth import logout
 from django.contrib.auth import views as django_auth_views
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
@@ -24,6 +25,11 @@ class APILoginView(django_auth_views.LoginView):
     def dispatch(self, request, *args, **kwargs):
         return super(django_auth_views.LoginView,
                      self).dispatch(request, *args, **kwargs)
+
+
+def bls_logout(request):
+    logout(request)
+    return JsonResponse("success", status=204, safe=False)
 
 
 @csrf_exempt
@@ -182,7 +188,9 @@ def tenant_info(request):
 
 @login_required
 def user_info(request):
-    return JsonResponse({
-        "username": request.user.username,
-        "service_catalog": request.user.service_catalog,
-    }, safe=False)
+    return JsonResponse(
+        {
+            "username": request.user.username,
+            "service_catalog": request.user.service_catalog,
+        },
+        safe=False)
