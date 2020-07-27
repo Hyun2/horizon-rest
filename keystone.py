@@ -23,7 +23,8 @@ from openstack_dashboard import api
 from openstack_dashboard.api.rest import urls
 from openstack_dashboard.api.rest import utils as rest_utils
 from openstack_dashboard.utils import identity as identity_utils
-import sys, time
+import sys
+import time
 from django.http import JsonResponse
 
 
@@ -892,23 +893,25 @@ class DeleteBLSProject(generic.View):
 
                 for port in ports:
                     try:
-                        time.sleep(0.1)
                         api.neutron.router_remove_interface(
                             request,
                             router_id=router['id'],
                             subnet_id=subnet['id'],
                             port_id=port['id'])
                     except:
+                        print("api.neutron.router_remove_interface ")
+                        print("router_id: {}, port_id: {}".format(
+                            router['id'], port['id']))
                         print("error: ", sys.exc_info()[0])
-                        print("error: ", sys.exc_info()[1])
                         pass
 
         for router in routers:
             try:
                 api.neutron.router_delete(request, router['id'])
             except:
+                print("api.neutron.router_delete")
+                print("router_id: {}".format(router['id']))
                 print("error: ", sys.exc_info()[0])
-                print("error: ", sys.exc_info()[1])
                 pass
 
         search_opts = {
@@ -923,6 +926,8 @@ class DeleteBLSProject(generic.View):
             try:
                 api.nova.server_delete(request, server['id'])
             except:
+                print("api.nova.server_delete")
+                print("server_id: {}".format(server['id']))
                 print("error: ", sys.exc_info()[0])
 
         volumes = api.cinder.volume_list(request, search_opts=search_opts)
@@ -932,8 +937,9 @@ class DeleteBLSProject(generic.View):
             try:
                 api.neutron.subnet_delete(request, subnet['id'])
             except:
+                print("api.neutron.subnet_delete")
+                print("subnet_id: {}".format(subnet['id']))
                 print("error: ", sys.exc_info()[0])
-                print("error: ", sys.exc_info()[1])
                 pass
 
         for network in networks:
@@ -942,24 +948,27 @@ class DeleteBLSProject(generic.View):
             try:
                 api.neutron.network_delete(request, network['id'])
             except:
+                print("api.neutron.network_delete")
+                print("network_id: {}".format(network['id']))
                 print("error: ", sys.exc_info()[0])
-                print("error: ", sys.exc_info()[1])
                 pass
 
         for volume in volumes:
             try:
                 api.cinder.volume_delete(request, volume['id'])
             except:
+                print("api.cinder.volume_delete")
+                print("volume_id: {}".format(volume['id']))
                 print("error: ", sys.exc_info()[0])
-                print("error: ", sys.exc_info()[1])
                 pass
 
         for f_ip in f_ips:
             try:
                 api.neutron.tenant_floating_ip_release(request, f_ip['id'])
             except:
+                print("api.neutron.tenant_floating_ip_release")
+                print("fip_id: {}".format(f_ip['id']))
                 print("error: ", sys.exc_info()[0])
-                print("error: ", sys.exc_info()[1])
                 pass
 
         api.keystone.tenant_delete(request, project_id)
