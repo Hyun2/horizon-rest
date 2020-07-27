@@ -899,7 +899,8 @@ class DeleteBLSProject(generic.View):
                             router_id=router['id'],
                             subnet_id=subnet['id'],
                             port_id=port['id'])
-                    except neutronclient.NotFound, neutronclient.BadRequest:
+                    except (neutronclient.NotFound,
+                            neutronclient.BadRequest) as e:
                         pass
                     except:
                         print("api.neutron.router_remove_interface ")
@@ -939,7 +940,7 @@ class DeleteBLSProject(generic.View):
         for subnet in subnets:
             try:
                 api.neutron.subnet_delete(request, subnet['id'])
-            except neutronclient.NotFound, neutronclient.Conflict:
+            except (neutronclient.NotFound, neutronclient.Conflict) as e:
                 pass
             except:
                 print("api.neutron.subnet_delete")
