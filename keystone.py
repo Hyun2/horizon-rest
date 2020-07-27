@@ -24,8 +24,9 @@ from openstack_dashboard.api.rest import urls
 from openstack_dashboard.api.rest import utils as rest_utils
 from openstack_dashboard.utils import identity as identity_utils
 import sys
-import time
 from django.http import JsonResponse
+from neutronclient.common import exceptions as neutronclient
+from cinderclient import exceptions as cinderclient
 
 
 @urls.register
@@ -898,6 +899,8 @@ class DeleteBLSProject(generic.View):
                             router_id=router['id'],
                             subnet_id=subnet['id'],
                             port_id=port['id'])
+                    except neutronclient.NotFound, neutronclient.BadRequest:
+                        pass
                     except:
                         print("api.neutron.router_remove_interface ")
                         print("router_id: {}, port_id: {}".format(
@@ -936,6 +939,8 @@ class DeleteBLSProject(generic.View):
         for subnet in subnets:
             try:
                 api.neutron.subnet_delete(request, subnet['id'])
+            except neutronclient.NotFound, neutronclient.Conflict:
+                pass
             except:
                 print("api.neutron.subnet_delete")
                 print("subnet_id: {}".format(subnet['id']))
@@ -947,6 +952,8 @@ class DeleteBLSProject(generic.View):
                 continue
             try:
                 api.neutron.network_delete(request, network['id'])
+            except neutronclient.NetworkInUseClient:
+                pass
             except:
                 print("api.neutron.network_delete")
                 print("network_id: {}".format(network['id']))
@@ -956,6 +963,8 @@ class DeleteBLSProject(generic.View):
         for volume in volumes:
             try:
                 api.cinder.volume_delete(request, volume['id'])
+            except cinderclient.NotFound:
+                pass
             except:
                 print("api.cinder.volume_delete")
                 print("volume_id: {}".format(volume['id']))
