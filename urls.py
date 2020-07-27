@@ -18,6 +18,7 @@ from . import bls_auth
 
 urlpatterns = [
     url(r'bls_auth/login/$', bls_auth.login),
+    url(r'bls_auth/logout/$', bls_auth.bls_logout),
     url(r'bls_auth/is-admin/$', bls_auth.is_admin),
     url(r'bls_auth/token-info/$', bls_auth.get_token_info),
     url(r'bls_auth/switch/$', bls_auth.switch),
