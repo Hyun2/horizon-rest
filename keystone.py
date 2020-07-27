@@ -899,12 +899,16 @@ class DeleteBLSProject(generic.View):
                             subnet_id=subnet['id'],
                             port_id=port['id'])
                     except:
+                        print("error: ", sys.exc_info()[0])
+                        print("error: ", sys.exc_info()[1])
                         pass
 
         for router in routers:
             try:
                 api.neutron.router_delete(request, router['id'])
             except:
+                print("error: ", sys.exc_info()[0])
+                print("error: ", sys.exc_info()[1])
                 pass
 
         search_opts = {
@@ -919,7 +923,7 @@ class DeleteBLSProject(generic.View):
             try:
                 api.nova.server_delete(request, server['id'])
             except:
-                pass
+                print("error: ", sys.exc_info()[0])
 
         volumes = api.cinder.volume_list(request, search_opts=search_opts)
         volumes = [v.to_dict() for v in volumes]
@@ -928,6 +932,8 @@ class DeleteBLSProject(generic.View):
             try:
                 api.neutron.subnet_delete(request, subnet['id'])
             except:
+                print("error: ", sys.exc_info()[0])
+                print("error: ", sys.exc_info()[1])
                 pass
 
         for network in networks:
@@ -936,18 +942,24 @@ class DeleteBLSProject(generic.View):
             try:
                 api.neutron.network_delete(request, network['id'])
             except:
+                print("error: ", sys.exc_info()[0])
+                print("error: ", sys.exc_info()[1])
                 pass
 
         for volume in volumes:
             try:
                 api.cinder.volume_delete(request, volume['id'])
             except:
+                print("error: ", sys.exc_info()[0])
+                print("error: ", sys.exc_info()[1])
                 pass
 
         for f_ip in f_ips:
             try:
                 api.neutron.tenant_floating_ip_release(request, f_ip['id'])
             except:
+                print("error: ", sys.exc_info()[0])
+                print("error: ", sys.exc_info()[1])
                 pass
 
         api.keystone.tenant_delete(request, project_id)
