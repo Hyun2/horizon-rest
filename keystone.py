@@ -934,7 +934,7 @@ class DeleteBLSProject(generic.View):
             if network['id'] in shared_networks_ids:
                 continue
             try:
-                api.neutron.network_delete(request, network['id'))
+                api.neutron.network_delete(request, network['id'])
             except:
                 pass
 
