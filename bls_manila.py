@@ -75,7 +75,7 @@ class BlsNas:
         print(res1['export_locations'])
 
         for _ in res1['export_locations']:
-            if '10.21.2.201' in _['path']:
+            if '10.21.2' in _['path']:
                 export_location_id = _['id']
                 break
 
