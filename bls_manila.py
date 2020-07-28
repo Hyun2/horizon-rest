@@ -72,11 +72,14 @@ class BlsNas:
             sleep(1)
             res1 = self.export_locations(token, project_id, share_id).json()
 
+        print(res1['export_locations'])
+
         for _ in res1['export_locations']:
             if '10.21.2.201' in _['path']:
                 export_location_id = _['id']
                 break
 
+        print(export_location_id)
         res2 = self.export_location(token, project_id, share_id,
                                     export_location_id).json()
 
