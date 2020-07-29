@@ -102,7 +102,7 @@ class BlsNas:
             export_locations = self.export_locations(token, project_id,
                                                      share['id']).json()
             for _ in export_locations['export_locations']:
-                if '10.21.2.201' in _['path']:
+                if '10.21.2.204' in _['path']:
                     export_location_id = _['id']
                     break
             res = self.export_location(
