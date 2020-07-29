@@ -38,7 +38,6 @@ def login(request):
         # print(request.POST)
         data = json.loads(request.body)
         data['region'] = 'default'
-        data['domain'] = 'default'
         request.POST = data
 
         APILoginView.as_view(template_name='',
@@ -107,7 +106,8 @@ def get_token_info(request):
                 "username": request.user.username,
                 "token_expires": request.user.token.expires,
                 "token_user": request.user.token.user,
-                "token_project": request.user.token.project
+                "token_project": request.user.token.project,
+                "user_domain_id": request.user.user_domain_id
             }
 
             return JsonResponse(data, safe=False)
