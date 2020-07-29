@@ -83,6 +83,7 @@ class Users(generic.View):
 
         This action returns the new user object on success.
         """
+
         domain = api.keystone.get_default_domain(request)
 
         new_user = api.keystone.user_create(
@@ -93,7 +94,7 @@ class Users(generic.View):
             project=request.DATA.get('project') or None,
             enabled=request.DATA.get('enabled', True),
             description=request.DATA.get('description') or None,
-            domain=domain.id)
+            domain=request.DATA.get('domain_id') or domain.id)
 
         return rest_utils.CreatedResponse(
             '/api/keystone/users/%s' % new_user.id, new_user.to_dict())
